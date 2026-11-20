@@ -1,0 +1,25 @@
+# Конфигурация с реальными паролями (самое важное!)
+config.py
+
+# Скомпилированный Python-мусор
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Файлы IDE
+.vscode/
+.idea/
+*.swp
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
