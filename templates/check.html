@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Проверка METAR</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-tabs">
+            <a href="/check" class="active">Проверка рейса</a>
+            <a href="/history">Аналитика истории</a>
+            {% if session.role == 'admin' %}<a href="/admin">Пользователи</a>{% endif %}
+            <a href="/logout" style="margin-left: auto; color: red;">Выйти</a>
+        </div>
+        <h2>Проверка метеоусловий</h2>
+        
+        <form method="POST">
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Вылет:</label>
+                    <select name="dep" required>
+                        {% for icao, name, city in aerodromes %}
+                            <option value="{{ icao }}" {% if form_data.get('dep') == icao %}selected{% endif %}>{{ icao }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Прилет:</label>
+                    <select name="arr" required>
+                        {% for icao, name, city in aerodromes %}
+                            <option value="{{ icao }}" {% if form_data.get('arr') == icao %}selected{% endif %}>{{ icao }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Запасной 1:</label>
+                    <select name="alt1" required>
+                        <option value="">-- Выберите запасной --</option>
+                        {% for icao, name, city in aerodromes %}
+                            <option value="{{ icao }}" {% if form_data.get('alt1') == icao %}selected{% endif %}>{{ icao }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Запасной 2:</label>
+                    <select name="alt2">
+                        <option value="">Нет</option>
+                        {% for icao, name, city in aerodromes %}
+                            <option value="{{ icao }}" {% if form_data.get('alt2') == icao %}selected{% endif %}>{{ icao }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <label>Категория ВС:</label>
+            <select name="ac_cat">
+                            <label>Категория ВС:</label>
+                <option value="C" {% if form_data.get('ac_cat') == 'C' %}selected{% endif %}>C (Boeing 737, Airbus A320)</option>
+                <option value="A" {% if form_data.get('ac_cat') == 'A' %}selected{% endif %}>A (Легкие самолеты)</option>
+                <option value="B" {% if form_data.get('ac_cat') == 'B' %}selected{% endif %}>B (Турбовинтовые)</option>
+                <option value="D" {% if form_data.get('ac_cat') == 'D' %}selected{% endif %}>D (Широкофюзеляжные)</option>
+                <option value="E" {% if form_data.get('ac_cat') == 'E' %}selected{% endif %}>E (Тяжелые)</option>
+            </select>
+            <button type="submit">Проверить</button>
+        </form>
+
+        {% if results %}
+            {% set first_res = results | first %}
+            {% if first_res.icao == 'МАРШРУТ' or first_res.icao == 'ОШИБКА' %}
+                <p class="status-red" style="padding: 10px; border: 1px solid red;">{{ first_res.status }}</p>
+            {% else %}
+                <table>
+                    <tr><th>Аэродром</th><th>Факт. видимость</th><th>Мин. видимость</th><th>Факт. облачность</th><th>Мин. облачность</th><th>Вердикт</th></tr>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r.icao }}</td>
+                        <td>{{ r.vis }} м</td>
+                        <td>{{ r.min_vis }} м</td>
+                        <td>{{ r.cloud }} м</td>
+                        <td>{{ r.min_cloud }} м</td>
+                        <td class="status-{{ r.color }}">{{ r.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

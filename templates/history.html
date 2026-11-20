@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>История</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-tabs">
+            <a href="/check">Проверка рейса</a>
+            <a href="/history" class="active">Аналитика истории</a>
+            {% if session.role == 'admin' %}<a href="/admin">Пользователи</a>{% endif %}
+            <a href="/logout" style="margin-left: auto; color: red;">Выйти</a>
+        </div>
+        <h2>График истории метеоданных</h2>
+        
+        <form method="POST">
+            <label>Аэродром:</label>
+            <select name="icao" required>
+                {% for icao, name in aerodromes %}
+                    <option value="{{ icao }}" {% if selected == icao %}selected{% endif %}>{{ icao }} - {{ name }}</option>
+                {% endfor %}
+            </select>
+            
+            <label>Параметр:</label>
+            <select name="metric">
+                <option value="temp" {% if metric == 'temp' %}selected{% endif %}>Температура (C)</option>
+                <option value="wind" {% if metric == 'wind' %}selected{% endif %}>Ветер (м/с)</option>
+                <option value="vis" {% if metric == 'vis' %}selected{% endif %}>Видимость (м)</option>
+                <option value="press" {% if metric == 'press' %}selected{% endif %}>Давление (гПа)</option>
+            </select>
+
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Сколько последних записей брать:</label>
+                    <select name="limit">
+                        <option value="3" {% if limit == '3' %}selected{% endif %}>3</option>
+                        <option value="5" {% if limit == '5' %}selected{% endif %}>5</option>
+                        <option value="10" {% if limit == '10' %}selected{% endif %}>10</option>
+                        <option value="24" {% if limit == '24' %}selected{% endif %}>24</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Окно сглаживания EMA (для температуры):</label>
+                    <select name="window">
+                        <option value="2" {% if window == '2' %}selected{% endif %}>2</option>
+                        <option value="3" {% if window == '3' %}selected{% endif %}>3</option>
+                        <option value="5" {% if window == '5' %}selected{% endif %}>5</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit">Построить график</button>
+        </form>
+
+        {% if chart_url %}
+            <div style="text-align: center; margin-top: 25px;">
+                <img src="data:image/png;base64,{{ chart_url }}" style="max-width: 100%; border-radius: 6px; border: 1px solid #ddd;">
+            </div>
+            {% if stats %}
+                <table style="margin-top: 20px;">
+                    <tr><th>Параметр</th><th>Минимум</th><th>Максимум</th><th>Среднее</th></tr>
+                    {% for s in stats %}
+                    <tr>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.min }} {{ s.unit }}</td>
+                        <td>{{ s.max }} {{ s.unit }}</td>
+                        <td>{{ s.avg }} {{ s.unit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% elif request.method == 'POST' %}
+            <p style="color: gray; text-align: center; margin-top: 20px;">Недостаточно данных в базе для построения графика (нужно минимум 2 замера).</p>
+        {% endif %}
+    </div>
+</body>
+</html>

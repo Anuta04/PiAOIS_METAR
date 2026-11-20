@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Администратор</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-tabs">
+            <a href="/check">Проверка рейса</a>
+            <a href="/history">Аналитика истории</a>
+            <a href="/admin" class="active">Пользователи</a>
+            <a href="/logout" style="margin-left: auto; color: red;">Выйти</a>
+        </div>
+        <h2>Управление пользователями</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Логин</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Действия</th>
+            </tr>
+            {% for uid, ulogin, urole, ucreated in users_list %}
+            <tr>
+                <td>{{ uid }}</td>
+                <td>{{ ulogin }}</td>
+                <td>{{ urole }}</td>
+                <td>{{ ucreated.strftime('%d.%m.%Y %H:%M') if ucreated else '—' }}</td>
+                <td>
+                    {% if uid != session.user_id %}
+                        <form action="/admin/toggle_role/{{ uid }}" method="POST" style="display:inline;">
+                            <button type="submit" style="padding: 4px 8px; font-size: 12px; background-color: #f39c12;">Сменить роль</button>
+                        </form>
+                        <form action="/admin/delete/{{ uid }}" method="POST" style="display:inline;" onsubmit="return confirm('Удалить пользователя?');">
+                            <button type="submit" style="padding: 4px 8px; font-size: 12px; background-color: #c0392b; color: white;">Удалить</button>
+                        </form>
+                    {% else %}
+                        <span style="color: gray; font-size: 12px;">(Это вы)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

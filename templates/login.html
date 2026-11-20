@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .pass-wrapper { position: relative; }
+        .eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: auto; }
+        .eye-btn:hover { background: none; }
+    </style>
+</head>
+<body>
+    <div class="container" style="width: 400px; margin-top: 100px;">
+        <h2>Вход в систему</h2>
+        {% if error %}<div class="error" style="color:red; text-align:center;">{{ error }}</div>{% endif %}
+        <form method="POST">
+            <div class="form-group">
+                <label>Логин:</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Пароль:</label>
+                <div class="pass-wrapper">
+                    <input type="password" name="password" id="password-field" required>
+                    <button type="button" class="eye-btn" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+            <button type="submit" style="width: 100%;">Войти</button>
+        </form>
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="/register">Зарегистрироваться</a>
+        </div>
+    </div>
+    <script>
+        function togglePassword() {
+            var x = document.getElementById("password-field");
+            x.type = (x.type === "password") ? "text" : "password";
+        }
+    </script>
+</body>
+</html>
