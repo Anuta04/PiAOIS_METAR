@@ -1,11 +1,17 @@
 import psycopg2
 import config
-# та же штуковина что и конфиг просто обернутый отдельной функцией 
+
+
 def get_db_connection():
+    """
+    Создаёт и возвращает соединение с PostgreSQL.
+    Параметры подключения берутся из config.py — так мы изолируем
+    «грязные» учётные данные от остального кода.
+    """
     return psycopg2.connect(
-        host=config.DB_HOST, 
-        database=config.DB_NAME, 
-        user=config.DB_USER, 
-        password=config.DB_PASS, 
+        host=config.DB_HOST,
+        database=config.DB_NAME,
+        user=config.DB_USER,
+        password=config.DB_PASS,
         port=config.DB_PORT
     )
